@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"testing"
+	"time"
 )
 
 func TestContext(t *testing.T) {
@@ -63,6 +64,8 @@ func TestCounter(t *testing.T) {
 	ctx, cancel := context.WithCancel(parent)
 	destination := CreateCounter(ctx)
 
+	fmt.Println(runtime.NumGoroutine())
+
 	for n := range destination {
 		fmt.Printf("Received: %d\n", n)
 		if n == 10 {
@@ -70,7 +73,8 @@ func TestCounter(t *testing.T) {
 		}
 		runtime.Gosched() // Allow other goroutines to run
 	}
-	defer cancel()
+	cancel()
 
+	time.Sleep(3 * time.Second)
 	fmt.Println(runtime.NumGoroutine())
 }
