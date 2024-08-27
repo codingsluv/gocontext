@@ -61,19 +61,16 @@ func CreateCounter(ctx context.Context) chan int {
 func TestCounter(t *testing.T) {
 	fmt.Println(runtime.NumGoroutine())
 	parent := context.Background()
-	ctx, cancel := context.WithCancel(parent)
-	destination := CreateCounter(ctx)
+	ctx, cancel := context.WithTimeout(parent, 5*time.Second)
+
+	defer cancel()
 
 	fmt.Println(runtime.NumGoroutine())
 
+	destination := CreateCounter(ctx)
 	for n := range destination {
-		fmt.Printf("Received: %d\n", n)
-		if n == 10 {
-			break
-		}
-		runtime.Gosched() // Allow other goroutines to run
+		fmt.Println("Received:", n)
 	}
-	cancel()
 
 	time.Sleep(3 * time.Second)
 	fmt.Println(runtime.NumGoroutine())
